@@ -6,12 +6,13 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,8 +37,8 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun WelcomeScreen() {
+    var nim by remember { mutableStateOf("") }
     var name by remember { mutableStateOf("") }
-    var inputText by remember { mutableStateOf("") }
     var welcomeMessage by remember { mutableStateOf("") }
 
     Column(
@@ -68,22 +69,23 @@ fun WelcomeScreen() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 TextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Masukkan Nama") },
+                    value = nim,
+                    onValueChange = { if (it.all { char -> char.isDigit() }) nim = it },
+                    label = { Text("Masukkan NIM") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 TextField(
-                    value = inputText,
-                    onValueChange = { inputText = it },
-                    label = { Text("Masukkan Pesan") },
+                    value = name,
+                    onValueChange = { if (it.all { char -> char.isLetter() || char.isWhitespace() }) name = it },
+                    label = { Text("Masukkan Nama") },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = {
-                        welcomeMessage = "Selamat datang, $name!\nPesan Anda: $inputText"
+                        welcomeMessage = "Hai $name, kamu memiliki NIM: $nim"
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -98,7 +100,7 @@ fun WelcomeScreen() {
                 modifier = Modifier
                     .padding(16.dp)
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)) // Ubah background dengan Modifier
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
             ) {
                 Text(
                     text = welcomeMessage,
