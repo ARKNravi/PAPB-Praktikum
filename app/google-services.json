@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1066339219839",
+    "project_id": "papb-praktikum-d9e73",
+    "storage_bucket": "papb-praktikum-d9e73.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1066339219839:android:42abb00a20e4c6de16424a",
+        "android_client_info": {
+          "package_name": "com.tifd.projectcomposed"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDw1-CTxdyqfYzgKZS7nbLLQittXq352Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
