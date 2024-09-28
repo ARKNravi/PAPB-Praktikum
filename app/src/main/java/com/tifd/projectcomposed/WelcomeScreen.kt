@@ -1,13 +1,17 @@
-package com.tifd.projectcomposed
-
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -17,10 +21,14 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.input.pointer.PointerEventType
+import com.google.firebase.auth.FirebaseAuth
+import com.tifd.projectcomposed.ListActivity
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
@@ -28,11 +36,13 @@ import kotlinx.coroutines.delay
 @SuppressLint("UnrememberedMutableState", "ReturnFromAwaitPointerEventScope")
 @Composable
 fun WelcomeScreen() {
-    var nim by rememberSaveable { mutableStateOf("") }
-    var name by rememberSaveable { mutableStateOf("") }
+    var email by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
     var welcomeMessage by rememberSaveable { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    var passwordVisible by rememberSaveable { mutableStateOf(false) }  // For password visibility toggle
 
-    val isFormValid by derivedStateOf { nim.isNotEmpty() && name.isNotEmpty() }
+    val isFormValid by derivedStateOf { email.isNotEmpty() && password.isNotEmpty() }
     val context = LocalContext.current
 
     val scrollState = rememberScrollState()
@@ -55,6 +65,7 @@ fun WelcomeScreen() {
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(16.dp))
+
         Card(
             shape = RoundedCornerShape(16.dp),
             elevation = CardDefaults.elevatedCardElevation(),
@@ -66,76 +77,66 @@ fun WelcomeScreen() {
                 modifier = Modifier.padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // Email Input
                 TextField(
-                    value = nim,
-                    onValueChange = { if (it.all { char -> char.isDigit() }) nim = it },
-                    label = { Text("Masukkan NIM") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                TextField(
-                    value = name,
-                    onValueChange = { if (it.all { char -> char.isLetter() || char.isWhitespace() }) name = it },
-                    label = { Text("Masukkan Nama") },
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Masukkan Email") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Option 1: Submit with a single click
+                // Password Input with Visibility Toggle
+                TextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Masukkan Password") },
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    trailingIcon = {
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(
+                                imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                                contentDescription = if (passwordVisible) "Hide password" else "Show password"
+                            )
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Submit Button
                 Button(
                     onClick = {
-                        if (isFormValid) {
-                            welcomeMessage = "Hai $name, kamu memiliki NIM: $nim"
-                            Toast.makeText(context, "$name - $nim", Toast.LENGTH_SHORT).show() }
+                        if (isFormValid && !isLoading) {
+                            isLoading = true
+                            signInWithEmailAndPassword(context, email, password) { success ->
+                                isLoading = false
+                                welcomeMessage = if (success) {
+                                    context.startActivity(Intent(context, ListActivity::class.java))
+                                    "Hai, kamu berhasil login!"
+                                } else {
+                                    "Login Failed"
+                                }
+                            }
+                        }
                     },
-                    enabled = isFormValid,
+                    enabled = isFormValid && !isLoading,
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
                         disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
                     )
                 ) {
-                    Text("Submit (Single Click)", fontSize = 16.sp)
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Option 2: Submit after holding for 5 seconds
-                Button(
-                    onClick = { /* OnClick not needed for long press */ },
-                    enabled = isFormValid,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .pointerInput(Unit) {
-                            awaitPointerEventScope {
-                                var holdJob: Job? = null
-                                while (true) {
-                                    val event = awaitPointerEvent()
-                                    when (event.type) {
-                                        PointerEventType.Press -> {
-                                            holdJob = coroutineScope.launch {
-                                                delay(5000) // 5 seconds delay
-                                                if (isFormValid) {
-                                                    welcomeMessage = "Hai $name, kamu memiliki NIM: $nim"
-                                                    Toast.makeText(context, "$name - $nim", Toast.LENGTH_SHORT).show()
-                                                }
-                                            }
-                                        }
-                                        PointerEventType.Release -> {
-                                            holdJob?.cancel()
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                    colors = ButtonDefaults.buttonColors(
-                        disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
-                    )
-                ) {
-                    Text("Submit (Hold for 5 seconds)", fontSize = 16.sp)
+                    if (isLoading) {
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
+                    } else {
+                        Text("Submit", fontSize = 16.sp)
+                    }
                 }
             }
         }
+
         Spacer(modifier = Modifier.height(32.dp))
         if (welcomeMessage.isNotEmpty()) {
             Card(
@@ -156,4 +157,20 @@ fun WelcomeScreen() {
             }
         }
     }
+}
+
+fun signInWithEmailAndPassword(
+    context: android.content.Context,
+    email: String,
+    password: String,
+    onResult: (Boolean) -> Unit
+) {
+    val auth = FirebaseAuth.getInstance()
+    auth.signInWithEmailAndPassword(email, password)
+        .addOnCompleteListener { task ->
+            onResult(task.isSuccessful)
+            if (!task.isSuccessful) {
+                Toast.makeText(context, "Login Failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
 }
