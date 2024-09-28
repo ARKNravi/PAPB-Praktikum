@@ -32,6 +32,12 @@ private val LightColorScheme = lightColorScheme(
     onSurface = Color(0xFF1C1B1F),
     */
 )
+@Composable
+fun ProjectComposeDTheme(content: @Composable () -> Unit) {
+    MaterialTheme(
+        content = content
+    )
+}
 
 @Composable
 fun ProjectComposeDTheme(
