@@ -76,4 +76,17 @@ dependencies {
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.firestore.ktx)
     implementation (libs.androidx.material.icons.extended)
+    implementation (libs.retrofit)
+    implementation (libs.converter.gson)
+    implementation (libs.logging.interceptor)
+    implementation (libs.coil.compose)
+    implementation ("com.squareup.okhttp3:okhttp:4.9.0")
+    implementation ("io.coil-kt:coil-compose:1.3.2")
+    implementation ("androidx.compose.ui:ui:1.5.0" )
+    implementation ("androidx.compose.material3:material3:1.0.0")
+    implementation ("androidx.activity:activity-compose:1.6.0")
+    implementation ("androidx.lifecycle:lifecycle-runtime-compose:2.6.0")
+    implementation ("androidx.compose.foundation:foundation:1.5.0")
+    implementation ("androidx.compose.material:material-icons-extended:1.0.0") // Material icons
+    implementation ("androidx.compose.ui:ui-tooling-preview:1.0.0") // Preview support
 }
