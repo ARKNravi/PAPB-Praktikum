@@ -1,6 +1,5 @@
 package com.tifd.projectcomposed
 
-import WelcomeScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.tifd.projectcomposed.ui.theme.ProjectComposeDTheme
@@ -9,6 +8,6 @@ import com.tifd.projectcomposed.ui.theme.ProjectComposeDTheme
 @Composable
 fun DefaultPreview() {
     ProjectComposeDTheme {
-        WelcomeScreen()
+        WelcomeScreen(onLoginSuccess = {})
     }
 }

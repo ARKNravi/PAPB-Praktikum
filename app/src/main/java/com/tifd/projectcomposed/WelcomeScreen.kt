@@ -1,13 +1,12 @@
+
+package com.tifd.projectcomposed
 import android.annotation.SuppressLint
-import android.content.Intent
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
@@ -17,7 +16,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -26,27 +24,20 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.input.pointer.PointerEventType
 import com.google.firebase.auth.FirebaseAuth
-import com.tifd.projectcomposed.ListActivity
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.delay
 
-@SuppressLint("UnrememberedMutableState", "ReturnFromAwaitPointerEventScope")
+@SuppressLint("UnrememberedMutableState")
 @Composable
-fun WelcomeScreen() {
+fun WelcomeScreen(onLoginSuccess: () -> Unit) {
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
-    var welcomeMessage by rememberSaveable { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
-    var passwordVisible by rememberSaveable { mutableStateOf(false) }  // For password visibility toggle
+    var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
     val isFormValid by derivedStateOf { email.isNotEmpty() && password.isNotEmpty() }
     val context = LocalContext.current
 
     val scrollState = rememberScrollState()
-    val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -77,7 +68,6 @@ fun WelcomeScreen() {
                 modifier = Modifier.padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Email Input
                 TextField(
                     value = email,
                     onValueChange = { email = it },
@@ -87,7 +77,6 @@ fun WelcomeScreen() {
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Password Input with Visibility Toggle
                 TextField(
                     value = password,
                     onValueChange = { password = it },
@@ -106,18 +95,14 @@ fun WelcomeScreen() {
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Submit Button
                 Button(
                     onClick = {
                         if (isFormValid && !isLoading) {
                             isLoading = true
                             signInWithEmailAndPassword(context, email, password) { success ->
                                 isLoading = false
-                                welcomeMessage = if (success) {
-                                    context.startActivity(Intent(context, ListActivity::class.java))
-                                    "Hai, kamu berhasil login!"
-                                } else {
-                                    "Login Failed"
+                                if (success) {
+                                    onLoginSuccess()
                                 }
                             }
                         }
@@ -131,29 +116,9 @@ fun WelcomeScreen() {
                     if (isLoading) {
                         CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
                     } else {
-                        Text("Submit", fontSize = 16.sp)
+                        Text("Login", fontSize = 16.sp)
                     }
                 }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
-        if (welcomeMessage.isNotEmpty()) {
-            Card(
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
-            ) {
-                Text(
-                    text = welcomeMessage,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.primary,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(16.dp)
-                )
             }
         }
     }

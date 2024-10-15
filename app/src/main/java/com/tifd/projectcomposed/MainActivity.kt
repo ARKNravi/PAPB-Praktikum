@@ -6,9 +6,10 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.navigation.compose.rememberNavController
 import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
 import com.tifd.projectcomposed.ui.theme.ProjectComposeDTheme
 
 class MainActivity : ComponentActivity() {
@@ -23,7 +24,25 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainScreen()
+                    var isLoggedIn by remember { mutableStateOf(false) }
+
+                    // Check if user is already logged in
+                    LaunchedEffect(Unit) {
+                        isLoggedIn = FirebaseAuth.getInstance().currentUser != null
+                    }
+
+                    // If not logged in, show WelcomeScreen (login screen)
+                    // If logged in, show MainScreen
+                    if (!isLoggedIn) {
+                        WelcomeScreen(onLoginSuccess = {
+                            isLoggedIn = true
+                        })
+                    } else {
+                        MainScreen(onLogout = {
+                            FirebaseAuth.getInstance().signOut()
+                            isLoggedIn = false
+                        })
+                    }
                 }
             }
         }
