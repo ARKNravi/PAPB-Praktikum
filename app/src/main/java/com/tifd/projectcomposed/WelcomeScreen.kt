@@ -27,6 +27,11 @@ fun WelcomeScreen(onLoginSuccess: () -> Unit) {
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var passwordVisible by remember { mutableStateOf(false) }
+    val isFormValid by remember {
+        derivedStateOf {
+            email.isNotEmpty() && password.isNotEmpty() && !isLoading
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -91,12 +96,12 @@ fun WelcomeScreen(onLoginSuccess: () -> Unit) {
                     Button(
                         onClick = {
                             isLoading = true
-                            // Implement login logic here
                             onLoginSuccess()
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(50.dp)
+                            .height(50.dp),
+                        enabled = isFormValid
                     ) {
                         if (isLoading) {
                             CircularProgressIndicator(color = Color.White)
@@ -109,6 +114,8 @@ fun WelcomeScreen(onLoginSuccess: () -> Unit) {
         }
     }
 }
+
+
 
 fun signInWithEmailAndPassword(
     context: android.content.Context,

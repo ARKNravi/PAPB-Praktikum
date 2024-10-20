@@ -22,12 +22,19 @@ fun addScheduleDataToFirestore() {
         ScheduleItem("Jumat", "14:30", "16:19", "Q", "CIF61101","Rekayasa Perangkat Lunak", "Fais Al Huda, S.Kom., M.Kom.", "Gedung F FILKOM - F2.5")
     )
 
-    scheduleCollection.get().addOnSuccessListener { result ->
-        val existingItems = result.map { it.toObject(ScheduleItem::class.java) }.toSet()
-        scheduleItems.forEach { newItem ->
-            if (newItem !in existingItems) {
-                scheduleCollection.add(newItem)
+    scheduleItems.forEach { newItem ->
+        scheduleCollection
+            .whereEqualTo("hari", newItem.hari)
+            .whereEqualTo("kode", newItem.kode)
+            .get()
+            .addOnSuccessListener { result ->
+                if (result.isEmpty) {
+                    scheduleCollection.add(newItem)
+                }
             }
-        }
+            .addOnFailureListener { e ->
+                // Log or handle error
+                println("Error fetching schedules: ${e.message}")
+            }
     }
 }

@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import coil.compose.rememberImagePainter
 import kotlinx.coroutines.launch
 import okhttp3.*
@@ -36,17 +37,27 @@ fun GithubProfileScreen() {
     var name by remember { mutableStateOf("") }
     var followers by remember { mutableStateOf(0) }
     var following by remember { mutableStateOf(0) }
+    var isError by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         scope.launch {
-            fetchGithubData { result ->
-                profilePic = result.getString("avatar_url")
-                username = result.getString("login")
-                name = result.getString("name")
-                followers = result.getInt("followers")
-                following = result.getInt("following")
+            try {
+                fetchGithubData { result ->
+                    profilePic = result.getString("avatar_url")
+                    username = result.getString("login")
+                    name = result.getString("name")
+                    followers = result.getInt("followers")
+                    following = result.getInt("following")
+                }
+            } catch (e: Exception) {
+                isError = true
             }
         }
+    }
+
+    if (isError) {
+        Text("Failed to load profile. Please try again.", color = MaterialTheme.colorScheme.error)
+        return
     }
 
     Column(
@@ -57,8 +68,8 @@ fun GithubProfileScreen() {
         verticalArrangement = Arrangement.Center
     ) {
         if (profilePic.isNotEmpty()) {
-            Image(
-                painter = rememberImagePainter(profilePic),
+            AsyncImage(
+                model = profilePic,
                 contentDescription = "Profile Picture",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.size(120.dp)
@@ -70,6 +81,7 @@ fun GithubProfileScreen() {
         Text(text = "Followers: $followers | Following: $following")
     }
 }
+
 
 
 fun fetchGithubData(onResult: (JSONObject) -> Unit) {
