@@ -10,13 +10,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.google.firebase.firestore.FirebaseFirestore
-import android.util.Log
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.sp
 
 class ListActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,81 +30,54 @@ class ListActivity : ComponentActivity() {
 fun ScheduleScreen() {
     var scheduleItems by remember { mutableStateOf(emptyList<ScheduleItem>()) }
     val firestore = FirebaseFirestore.getInstance()
-    val context = LocalContext.current
 
-    // Load data from Firestore
     LaunchedEffect(Unit) {
         firestore.collection("schedules")
             .get()
             .addOnSuccessListener { result ->
                 scheduleItems = result.toObjects(ScheduleItem::class.java)
             }
-            .addOnFailureListener { exception ->
-                Log.e("ScheduleScreen", "Error getting documents: $exception")
-            }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Schedule") },
-                actions = {
-                    // Top button (GitHub Profile)
-                    IconButton(onClick = {
-                        try {
-                            val intent = Intent(context, GithubProfileActivity::class.java)
-                            context.startActivity(intent)
-                        } catch (e: Exception) {
-                            Log.e("ScheduleScreen", "Error starting GitHub profile activity", e)
-                        }
-                    }) {
-                        Icon(Icons.Filled.AccountCircle, contentDescription = "GitHub Profile")
-                    }
-                }
-            )
-        },
-        floatingActionButton = {
-            // Bottom button (GitHub Profile)
-            FloatingActionButton(onClick = {
-                try {
-                    val intent = Intent(context, com.tifd.projectcomposed.GithubProfileActivity::class.java)
-                    context.startActivity(intent)
-                } catch (e: Exception) {
-                    Log.e("ScheduleScreen", "Error starting GitHub profile activity from FAB", e)
-                }
-            }) {
-                Icon(Icons.Filled.AccountCircle, contentDescription = "GitHub Profile")
-            }
-        }
-    ) { innerPadding ->
+    Column(modifier = Modifier.fillMaxSize()) {
+        Text(
+            text = "Your Schedule",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(16.dp)
+        )
         LazyColumn(
-            contentPadding = innerPadding,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
         ) {
             items(scheduleItems) { item ->
                 ScheduleItemCard(item)
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleItemCard(item: ScheduleItem) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = item.mataKuliah, fontWeight = FontWeight.Bold)
-            Text(text = "Hari, Tanggal: ${item.hari}, ${item.jamMulai} - ${item.jamSelesai}")
-            Text(text = "Kode: ${item.kode}")
-            Text(text = "Kelas: ${item.kelas}")
-            Text(text = "Dosen: ${item.dosen}")
-            Text(text = "Ruang: ${item.ruang}")
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(text = item.mataKuliah, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(text = "${item.hari}, ${item.jamMulai} - ${item.jamSelesai}", fontSize = 14.sp)
+                Spacer(modifier = Modifier.weight(1f))
+                Text(text = item.kelas, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = "Dosen: ${item.dosen}", fontSize = 14.sp)
+            Text(text = "Ruang: ${item.ruang}", fontSize = 14.sp)
         }
     }
 }

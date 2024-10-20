@@ -1,122 +1,108 @@
 
 package com.tifd.projectcomposed
-import android.annotation.SuppressLint
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.firebase.auth.FirebaseAuth
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.background
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 
-@SuppressLint("UnrememberedMutableState")
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WelcomeScreen(onLoginSuccess: () -> Unit) {
-    var email by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
-    var passwordVisible by rememberSaveable { mutableStateOf(false) }
+    var passwordVisible by remember { mutableStateOf(false) }
 
-    val isFormValid by derivedStateOf { email.isNotEmpty() && password.isNotEmpty() }
-    val context = LocalContext.current
-
-    val scrollState = rememberScrollState()
-
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(scrollState)
-            .padding(16.dp)
-            .background(MaterialTheme.colorScheme.background),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+            .background(MaterialTheme.colorScheme.primary)
     ) {
-        Text(
-            text = "Selamat Datang!",
-            fontSize = 32.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Card(
-            shape = RoundedCornerShape(16.dp),
-            elevation = CardDefaults.elevatedCardElevation(),
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
+                .fillMaxSize()
+                .padding(32.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Text(
+                text = "Welcome Back",
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+
+            Spacer(modifier = Modifier.height(48.dp))
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp)),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
-                TextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("Masukkan Email") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(16.dp))
+                Column(
+                    modifier = Modifier.padding(32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    OutlinedTextField(
+                        value = email,
+                        onValueChange = { email = it },
+                        label = { Text("Email") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
-                TextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text("Masukkan Password") },
-                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    trailingIcon = {
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                            Icon(
-                                imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                                contentDescription = if (passwordVisible) "Hide password" else "Show password"
-                            )
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                Button(
-                    onClick = {
-                        if (isFormValid && !isLoading) {
-                            isLoading = true
-                            signInWithEmailAndPassword(context, email, password) { success ->
-                                isLoading = false
-                                if (success) {
-                                    onLoginSuccess()
-                                }
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        label = { Text("Password") },
+                        singleLine = true,
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        modifier = Modifier.fillMaxWidth(),
+                        trailingIcon = {
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(
+                                    imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                                    contentDescription = if (passwordVisible) "Hide password" else "Show password"
+                                )
                             }
                         }
-                    },
-                    enabled = isFormValid && !isLoading,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
                     )
-                ) {
-                    if (isLoading) {
-                        CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
-                    } else {
-                        Text("Login", fontSize = 16.sp)
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    Button(
+                        onClick = {
+                            isLoading = true
+                            // Implement login logic here
+                            onLoginSuccess()
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp)
+                    ) {
+                        if (isLoading) {
+                            CircularProgressIndicator(color = Color.White)
+                        } else {
+                            Text("Log In")
+                        }
                     }
                 }
             }
