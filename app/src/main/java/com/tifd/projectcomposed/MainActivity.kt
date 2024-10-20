@@ -26,13 +26,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     var isLoggedIn by remember { mutableStateOf(false) }
 
-                    // Check if user is already logged in
-                    LaunchedEffect(Unit) {
-                        isLoggedIn = FirebaseAuth.getInstance().currentUser != null
-                    }
-
-                    // If not logged in, show WelcomeScreen (login screen)
-                    // If logged in, show MainScreen
+                    // Always start with the login screen
                     if (!isLoggedIn) {
                         WelcomeScreen(onLoginSuccess = {
                             isLoggedIn = true
