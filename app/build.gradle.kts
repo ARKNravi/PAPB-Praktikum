@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.gms.google-services")
+    id("kotlin-kapt")
 }
 
 android {
@@ -92,11 +93,17 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.6.0")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.0")
     implementation("androidx.compose.foundation:foundation:1.5.0")
-    implementation("androidx.compose.material:material-icons-extended:1.0.0") // Material icons
+    implementation("androidx.compose.material:material-icons-extended:1.0.0")
 
     // Navigation for Compose
-    implementation("androidx.navigation:navigation-compose:2.6.0") // <-- Added for navigation support
+    implementation("androidx.navigation:navigation-compose:2.6.0")
 
     // Preview support
     implementation("androidx.compose.ui:ui-tooling-preview:1.0.0")
+
+    // Room dependencies
+    val roomVersion = "2.6.1"
+    implementation("androidx.room:room-runtime:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
+    kapt("androidx.room:room-compiler:$roomVersion")
 }
