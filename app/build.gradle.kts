@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.gms.google-services")
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp") version "1.9.0-1.0.11"
 }
 
 android {
@@ -102,8 +102,19 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview:1.0.0")
 
     // Room dependencies
-    val roomVersion = "2.6.1"
-    implementation("androidx.room:room-runtime:$roomVersion")
-    implementation("androidx.room:room-ktx:$roomVersion")
-    kapt("androidx.room:room-compiler:$roomVersion")
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+
+    // CameraX dependencies
+    val cameraxVersion = "1.2.0-alpha01"
+    // CameraX dependencies
+    implementation("androidx.camera:camera-core:$cameraxVersion")
+    implementation("androidx.camera:camera-camera2:$cameraxVersion")
+    implementation("androidx.camera:camera-lifecycle:$cameraxVersion")
+    implementation("androidx.camera:camera-view:$cameraxVersion")  // Updated to 1.2.0-alpha01
+    implementation("androidx.camera:camera-extensions:$cameraxVersion")
+
+    // FileProvider support
+    implementation("androidx.core:core-ktx:1.6.0")
+    ksp("androidx.room:room-compiler:2.5.2")
 }

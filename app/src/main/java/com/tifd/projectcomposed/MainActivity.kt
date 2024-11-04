@@ -28,9 +28,12 @@ class MainActivity : ComponentActivity() {
 
                     // Always start with the login screen
                     if (!isLoggedIn) {
-                        WelcomeScreen(onLoginSuccess = {
-                            isLoggedIn = true
-                        })
+                        WelcomeScreen(
+                            onLoginSuccess = {
+                                isLoggedIn = true
+                            },
+                            context = this // Pass the context here
+                        )
                     } else {
                         MainScreen(onLogout = {
                             FirebaseAuth.getInstance().signOut()

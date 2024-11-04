@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [TugasEntity::class], version = 1, exportSchema = false)
+@Database(entities = [TugasEntity::class], version = 2, exportSchema = false)
 abstract class TugasDatabase : RoomDatabase() {
     abstract fun tugasDao(): TugasDao
 
@@ -19,7 +19,9 @@ abstract class TugasDatabase : RoomDatabase() {
                     context.applicationContext,
                     TugasDatabase::class.java,
                     "tugas_database"
-                ).build()
+                )
+                    .fallbackToDestructiveMigration() // Resets database if migration is not provided
+                    .build()
                 INSTANCE = instance
                 instance
             }

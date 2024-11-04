@@ -22,7 +22,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WelcomeScreen(onLoginSuccess: () -> Unit) {
+fun WelcomeScreen(onLoginSuccess: () -> Unit, context: android.content.Context) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
@@ -96,7 +96,12 @@ fun WelcomeScreen(onLoginSuccess: () -> Unit) {
                     Button(
                         onClick = {
                             isLoading = true
-                            onLoginSuccess()
+                            signInWithEmailAndPassword(context, email, password) { success ->
+                                isLoading = false
+                                if (success) {
+                                    onLoginSuccess()
+                                }
+                            }
                         },
                         modifier = Modifier
                             .fillMaxWidth()

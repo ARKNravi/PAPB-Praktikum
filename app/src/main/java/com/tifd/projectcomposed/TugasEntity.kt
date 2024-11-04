@@ -9,5 +9,6 @@ data class TugasEntity(
     val id: Int = 0,
     val namaMatkul: String,
     val detailTugas: String,
-    var isDone: Boolean = false
+    var isDone: Boolean = false,
+    val imageUri: String? = null // New field for storing image URI
 )

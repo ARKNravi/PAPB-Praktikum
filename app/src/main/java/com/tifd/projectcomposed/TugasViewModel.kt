@@ -25,12 +25,13 @@ class TugasViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun addTugas(namaMatkul: String, detailTugas: String) {
+    fun addTugas(namaMatkul: String, detailTugas: String, imageUri: String?) {
         viewModelScope.launch(Dispatchers.IO) {
             tugasDao.insertTugas(
                 TugasEntity(
                     namaMatkul = namaMatkul,
-                    detailTugas = detailTugas
+                    detailTugas = detailTugas,
+                    imageUri = imageUri // Save image URI
                 )
             )
         }
