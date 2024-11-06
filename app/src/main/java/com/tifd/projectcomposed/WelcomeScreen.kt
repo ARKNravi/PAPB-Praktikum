@@ -1,5 +1,5 @@
-
 package com.tifd.projectcomposed
+
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,10 +28,21 @@ fun WelcomeScreen(onLoginSuccess: () -> Unit, context: android.content.Context) 
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var passwordVisible by remember { mutableStateOf(false) }
+    var emailError by remember { mutableStateOf<String?>(null) }
+    var passwordError by remember { mutableStateOf<String?>(null) }
     val isFormValid by remember {
         derivedStateOf {
-            email.isNotEmpty() && password.isNotEmpty() && !isLoading
+            email.isNotEmpty() && password.isNotEmpty() && emailError == null && passwordError == null && !isLoading
         }
+    }
+
+    val validateEmail = { email: String ->
+        val emailPattern = "^[\\w-_.]+@[\\w]+\\.[a-z]{2,3}$".toRegex() // Simple email regex
+        emailPattern.matches(email)
+    }
+
+    val validatePassword = { password: String ->
+        password.length >= 8
     }
 
     Box(
@@ -66,17 +78,32 @@ fun WelcomeScreen(onLoginSuccess: () -> Unit, context: android.content.Context) 
                 ) {
                     OutlinedTextField(
                         value = email,
-                        onValueChange = { email = it },
+                        onValueChange = {
+                            email = it
+                            emailError = if (validateEmail(email)) null else "Invalid email format"
+                        },
                         label = { Text("Email") },
                         singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = emailError != null,
                     )
+                    if (emailError != null) {
+                        Text(
+                            text = emailError!!,
+                            color = MaterialTheme.colorScheme.error,
+                            fontSize = 12.sp,
+                            modifier = Modifier.align(Alignment.Start)
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(16.dp))
 
                     OutlinedTextField(
                         value = password,
-                        onValueChange = { password = it },
+                        onValueChange = {
+                            password = it
+                            passwordError = if (validatePassword(password)) null else "Password must be at least 8 characters"
+                        },
                         label = { Text("Password") },
                         singleLine = true,
                         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -88,8 +115,17 @@ fun WelcomeScreen(onLoginSuccess: () -> Unit, context: android.content.Context) 
                                     contentDescription = if (passwordVisible) "Hide password" else "Show password"
                                 )
                             }
-                        }
+                        },
+                        isError = passwordError != null,
                     )
+                    if (passwordError != null) {
+                        Text(
+                            text = passwordError!!,
+                            color = MaterialTheme.colorScheme.error,
+                            fontSize = 12.sp,
+                            modifier = Modifier.align(Alignment.Start)
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(32.dp))
 
@@ -100,6 +136,8 @@ fun WelcomeScreen(onLoginSuccess: () -> Unit, context: android.content.Context) 
                                 isLoading = false
                                 if (success) {
                                     onLoginSuccess()
+                                } else {
+                                    Toast.makeText(context, "Login Failed", Toast.LENGTH_SHORT).show()
                                 }
                             }
                         },
@@ -119,8 +157,6 @@ fun WelcomeScreen(onLoginSuccess: () -> Unit, context: android.content.Context) 
         }
     }
 }
-
-
 
 fun signInWithEmailAndPassword(
     context: android.content.Context,

@@ -105,16 +105,16 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
 
-    // CameraX dependencies
-    val cameraxVersion = "1.2.0-alpha01"
-    // CameraX dependencies
-    implementation("androidx.camera:camera-core:$cameraxVersion")
-    implementation("androidx.camera:camera-camera2:$cameraxVersion")
-    implementation("androidx.camera:camera-lifecycle:$cameraxVersion")
-    implementation("androidx.camera:camera-view:$cameraxVersion")  // Updated to 1.2.0-alpha01
-    implementation("androidx.camera:camera-extensions:$cameraxVersion")
+
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)  // Updated to 1.2.0-alpha01
+    implementation(libs.androidx.camera.extensions)
 
     // FileProvider support
     implementation("androidx.core:core-ktx:1.6.0")
     ksp("androidx.room:room-compiler:2.5.2")
+    implementation (libs.lifecycle.runtime.compose) // Use the latest version available
+
 }
